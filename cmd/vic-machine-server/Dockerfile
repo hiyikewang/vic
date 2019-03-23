@@ -7,11 +7,18 @@
 
 FROM photon:2.0
 
+# Install packages from local yum repo and then retore to official yum repo
+RUN mv /etc/yum.repos.d /etc/yum.repos.d.bak && \
+    mkdir -p /etc/yum.repos.d
+COPY isos/base/repos/photon-2.0/photon-2.0.repo.local /etc/yum.repos.d/
+RUN mv /etc/yum.repos.d/photon-2.0.repo.local /etc/yum.repos.d/photon-2.0.repo
 RUN set -eux; \
      tdnf distro-sync --refresh -y; \
      tdnf install shadow -y; \
      tdnf info installed; \
      tdnf clean all
+RUN rm -rf /etc/yum.repos.d && \
+    mv /etc/yum.repos.d.bak /etc/yum.repos.d
 
 ENV HOST 0.0.0.0
 ENV PORT 80
